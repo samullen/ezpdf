@@ -1,6 +1,6 @@
-defmodule Ezpdf do
+defmodule EZPDF do
   @moduledoc """
-  Documentation for Ezpdf.
+  Documentation for EZPDF.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule Ezpdf do
 
   ## Examples
 
-      iex> Ezpdf.hello
+      iex> EZPDF.hello
       :world
 
   """

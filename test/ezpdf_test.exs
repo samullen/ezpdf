@@ -1,6 +1,6 @@
-defmodule EzpdfTest do
+defmodule EZPDFTest do
   use ExUnit.Case
-  doctest Ezpdf
+  doctest EZPDF
 
   test "the truth" do
     assert 1 + 1 == 2

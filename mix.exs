@@ -1,4 +1,4 @@
-defmodule Ezpdf.Mixfile do
+defmodule EZPDF.Mixfile do
   use Mix.Project
 
   def project do
