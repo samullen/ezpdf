@@ -3,6 +3,7 @@ defmodule EZPDF.Mixfile do
 
   def project do
     [app: :ezpdf,
+     escript: escript_config(),
      version: "0.1.0",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
@@ -33,7 +34,12 @@ defmodule EZPDF.Mixfile do
   defp deps do
     [
       { :earmark, "~> 1.2" },
-      { :pdf_generator, "~> 0.3" }
+      { :pdf_generator, "~> 0.3" },
+      {:configparser_ex, "~> 1.0"}
     ]
+  end
+
+  defp escript_config do
+    [ main_module: EZPDF.CLI]
   end
 end
