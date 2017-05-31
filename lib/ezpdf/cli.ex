@@ -3,7 +3,7 @@ defmodule EZPDF.CLI do
     argv
     |> parse_args
     |> parse_config
-    |> process_input
+    |> process_markdown
     |> process_pdf
     |> output_pdf
   end
@@ -25,34 +25,37 @@ defmodule EZPDF.CLI do
     end
   end
 
+  def parse_config(:help) do
+    :help
+  end
   def parse_config(args_options) do
     {args, input_file, _} = args_options
 
-    case ConfigParser.parse_file(Path.expand("~/.ezpdfrc")) do
+    case ConfigParser.parse_file(Path.expand(Application.get_env(:ezpdf, :ezpdfrc_path))) do
       {:ok, config} -> 
-        Application.put_env(:EZPDF, "header", args[:header] || config["config"]["header"])
-        Application.put_env(:EZPDF, "footer", args[:footer] || config["config"]["footer"])
-        Application.put_env(:EZPDF, "output", args[:output] || config["config"]["output"])
+        Application.put_env(:ezpdf, "header", args[:header] || config["config"]["header"])
+        Application.put_env(:ezpdf, "footer", args[:footer] || config["config"]["footer"])
+        Application.put_env(:ezpdf, "output", args[:output] || config["config"]["output"])
       _ -> %{}
     end
 
     input_file
   end
 
-  def process_input([]) do
-    IO.read(:stdio, :all)
-    |> Earmark.as_html
+  def process_markdown(:help) do
+    IO.puts """
+      usage: ezpdf [path to input file]
+      """
   end
-  def process_input([input_path]) do
-    case File.read(input_path) do
+  def process_markdown([input_path]) do
+    case File.read(Path.expand(input_path)) do
       {:ok, data} -> Earmark.as_html(data)
       {:error, msg} -> IO.puts :stderr, :file.format_error(msg)
     end
   end
-  def process_input(:help) do
-    IO.puts """
-      usage: ezpdf [path to input file]
-      """
+  def process_markdown([]) do
+    IO.read(:stdio, :all)
+    |> Earmark.as_html
   end
 
   def process_pdf({:ok, html, _}) do
@@ -61,22 +64,24 @@ defmodule EZPDF.CLI do
   end
 
   def output_pdf({:ok, pdf_content}) do
-    if Application.get_env(:EZPDF, "output") do
-      File.write(Application.get_env(:EZPDF, "output"), pdf_content)
+    if Application.get_env(:ezpdf, "output") do
+      File.write(Application.get_env(:ezpdf, "output"), pdf_content)
     else
       IO.binwrite(:stdio, pdf_content)
     end
   end
 
   defp header_html do
-    case File.read("#{Application.get_env(:EZPDF, "header")}") do
+    case File.read(Path.expand("#{Application.get_env(:ezpdf, "header")}")) do
       {:ok, data} -> data
+      {:error, msg} -> 
+        IO.puts :stderr, :file.format_error(msg)
       _ -> "<!DOCTYPE html>\n<html>\n<head></head>\n<body>"
     end
   end
 
   defp footer_html do
-    case File.read("#{Application.get_env(:EZPDF, "footer")}") do
+    case File.read(Path.expand("#{Application.get_env(:ezpdf, "footer")}")) do
       {:ok, data} -> data
       _ -> "</body></html>"
     end
