@@ -2,8 +2,8 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :pdf_generator,
-       wkhtml_path: "/usr/local/bin/wkhtmltopdf"
+config :pdf_generator, wkhtml_path: "/usr/local/bin/wkhtmltopdf"
+
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
@@ -30,4 +30,4 @@ config :pdf_generator,
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+import_config "#{Mix.env}.exs"
