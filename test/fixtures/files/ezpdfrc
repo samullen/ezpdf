@@ -1,0 +1,4 @@
+[config]
+header = ./test/fixtures/files/header.html
+footer = ./test/fixtures/files/footer.html
+output = ./test/fixtures/files/output.html
