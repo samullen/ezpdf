@@ -2,81 +2,12 @@ defmodule CliTest do
   use ExUnit.Case
   doctest EZPDF.CLI
 
-  import EZPDF.CLI, only: [parse_args: 1, parse_config: 1, process_markdown: 1]
-
-  describe "parse_args/1" do
-    test ":help returned by option parsing with -h and --help options" do
-      assert parse_args(["-h", "anything"]) == :help
-      assert parse_args(["--help", "anything"]) == :help
-    end
-
-    test ":header returned when passed the -H or --header options" do
-      assert {[header: "anything"], [], []} = parse_args(["-H", "anything"])
-      assert {[header: "anything"], [], []} = parse_args(["--header", "anything"])
-    end
-
-    test ":footer returned when passed the -F or --footer options" do
-      assert {[footer: "anything"], [], []} = parse_args(["-F", "anything"])
-      assert {[footer: "anything"], [], []} = parse_args(["--footer", "anything"])
-    end
-
-    test ":output returned when passed the -o or --output options" do
-      assert {[output: "anything"], [], []} = parse_args(["-o", "anything"])
-      assert {[output: "anything"], [], []} = parse_args(["--output", "anything"])
-    end
-
-    test ":input returned for non-option arguments" do
-      assert {[], ["example.md"], []} = parse_args(~w{example.md})
-    end
-  end
-
-  describe "parse_config/1" do
-    test "returns :help if receives :help" do
-      assert :help = parse_config(:help)
-    end
-    # {args, input_file, _} = args_options
-
-    test "returns the [] if no input file is provided" do
-      assert [] = parse_config({[], [], []}) 
-    end
-
-    test "returns the [filepath] if input file is provided" do
-      assert ["/path/to/file.text"] = parse_config({[], ["/path/to/file.text"], []}) 
-    end
-
-    test "it sets the 'header' Application.env to the arg passed" do
-      parse_config({[header: "header.html"], [], []}) 
-      assert Application.get_env(:ezpdf, "header") == "header.html"
-      Application.delete_env(:ezpdf, "header")
-    end
-    test "it sets the 'header' Application.env to the config" do
-      parse_config({[], [], []}) 
-      assert Application.get_env(:ezpdf, "header") == "./test/fixtures/files/header.html"
-      Application.delete_env(:ezpdf, "header")
-    end
-
-    test "it sets the 'footer' Application.env to the arg passed" do
-      parse_config({[footer: "footer.html"], [], []}) 
-      assert Application.get_env(:ezpdf, "footer") == "footer.html"
-      Application.delete_env(:ezpdf, "footer")
-    end
-    test "it sets the 'footer' Application.env to the config" do
-      parse_config({[], [], []}) 
-      assert Application.get_env(:ezpdf, "footer") == "./test/fixtures/files/footer.html"
-      Application.delete_env(:ezpdf, "footer")
-    end
-
-    test "it sets the 'output' Application.env to the arg passed" do
-      parse_config({[output: "output.html"], [], []}) 
-      assert Application.get_env(:ezpdf, "output") == "output.html"
-      Application.delete_env(:ezpdf, "output")
-    end
-    test "it sets the 'output' Application.env to the config" do
-      parse_config({[], [], []}) 
-      assert Application.get_env(:ezpdf, "output") == "./test/fixtures/files/output.html"
-      Application.delete_env(:ezpdf, "output")
-    end
-  end
+  import ExUnit.CaptureIO
+  import EZPDF.CLI, only: [
+    process_markdown: 1,
+    process_pdf: 1,
+    output_pdf: 1
+  ]
 
   describe "process_markdown/1" do
     test "it takes STDIN if no input file is provided" do
@@ -84,10 +15,32 @@ defmodule CliTest do
     end
 
     test "it reads data from a provided input file" do
-      ExUnit.CaptureIO.capture_io("# Hello, World!", fn -> 
+      capture_io("# Hello, World!", fn -> 
         send self(), process_markdown([])
       end) 
       assert_received {:ok, "<h1>Hello, World!</h1>\n", []} 
+    end
+  end
+
+  describe "process_pdf/1" do
+    test "it takes a tuple with HTML, and returns PDF output" do
+      true
+      # assert process_pdf({:ok, "<h1>Hello, World!</h1>\n", []}) == "something"
+    end
+  end
+
+  describe "output_pdf/1" do
+    test "it writes the PDF output to the path specified in output" do
+      Application.put_env(:ezpdf, "output", "/tmp/ezpdf.pdf")
+      output_pdf({:ok, "not a pdf"})
+      assert File.read("/tmp/ezpdf.pdf") == {:ok, "not a pdf"}
+      Application.delete_env(:ezpdf, "output")
+    end
+    
+    test "it writes the PDF to output.pdf" do
+      output_pdf({:ok, "not a pdf"})
+      assert File.read(Path.expand("output.pdf")) == {:ok, "not a pdf"}
+      File.rm(Path.expand("output.pdf"))
     end
   end
 end
