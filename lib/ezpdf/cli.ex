@@ -64,11 +64,8 @@ defmodule EZPDF.CLI do
   end
 
   def output_pdf({:ok, pdf_content}) do
-    if Application.get_env(:ezpdf, "output") do
-      File.write(Application.get_env(:ezpdf, "output"), pdf_content)
-    else
-      IO.binwrite(:stdio, pdf_content)
-    end
+    Path.expand(Application.get_env(:ezpdf, "output") || "output.pdf")
+    |> File.write(pdf_content)
   end
 
   defp header_html do
