@@ -1,18 +1,23 @@
 defmodule EZPDF.CLI do
   def main(argv) do
     argv
-    |> Config.setup
+    |> EZPDF.Config.setup
     |> process
   end
 
   def process(:help) do
     IO.puts """
-      usage: ezpdf [path to input file]
+      Usage: ezpdf [options] [markdown file]
+
+        -h, --help              # Usage help
+        -H, --header file       # html file to use as the header
+        -f, --footer file       # html file to use as the footer
+        -o, --output file       # output PDF to file (default: ./output.pdf)
       """
   end
 
   def process(input_path) do
     input_path
-    |> Processor.process
+    |> EZPDF.Processor.process
   end
 end

@@ -12,7 +12,7 @@ defmodule EZPDF.Config do
                                    footer: :string, output: :string
                                  ],
                                  aliases: [
-                                   h: :help, H: :header, F: :footer, o: :output
+                                   h: :help, H: :header, f: :footer, o: :output
                                  ])
 
     case options do
