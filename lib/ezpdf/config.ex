@@ -38,5 +38,4 @@ defmodule EZPDF.Config do
 
     input_file
   end
-
 end
