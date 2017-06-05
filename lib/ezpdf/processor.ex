@@ -8,7 +8,7 @@ defmodule EZPDF.Processor do
 
   def process_markdown([input_path]) do
     case File.read(Path.expand(input_path)) do
-      {:ok, data} -> Earmark.as_html(data)
+      {:ok, data} -> Earmark.as_html(data, %Earmark.Options{smartypants: false})
       {:error, msg} -> IO.puts :stderr, :file.format_error(msg)
     end
   end
@@ -19,7 +19,7 @@ defmodule EZPDF.Processor do
 
   def process_pdf({:ok, html, _}) do
     Enum.join([header_html(), html, footer_html()])
-    |> PdfGenerator.generate_binary(page_size: "Letter", shell_params: ["--print-media-type", "--page-size", "Letter", "--dpi", "150", "--zoom", "3", "--margin-top", "8", "--margin-right", "8", "--margin-bottom", "8", "--margin-left", "8"])
+    |> PdfGenerator.generate_binary(page_size: "Letter", shell_params: ["--print-media-type", "--page-size", "Letter", "--dpi", "150", "--zoom", "2.5", "--margin-top", "16", "--margin-right", "16", "--margin-bottom", "16", "--margin-left", "16"])
   end
 
   def output_pdf({:ok, pdf_content}) do
